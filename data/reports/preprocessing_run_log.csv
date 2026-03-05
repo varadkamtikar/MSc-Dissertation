@@ -1,0 +1,5 @@
+subject,status,error
+s29,FAIL,"TypeError(""load_and_clean_bdf() missing 1 required positional argument: 'cfg'"")"
+s30,FAIL,"TypeError(""load_and_clean_bdf() missing 1 required positional argument: 'cfg'"")"
+s31,FAIL,"TypeError(""load_and_clean_bdf() missing 1 required positional argument: 'cfg'"")"
+s32,FAIL,"TypeError(""load_and_clean_bdf() missing 1 required positional argument: 'cfg'"")"

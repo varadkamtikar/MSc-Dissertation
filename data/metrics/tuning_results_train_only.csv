@@ -1,0 +1,7 @@
+model,best_params,cv_macro_f1
+XGBoost,"{'clf__colsample_bytree': 1.0, 'clf__learning_rate': 0.05, 'clf__max_depth': 3, 'clf__n_estimators': 500, 'clf__subsample': 0.8}",0.5422362743142886
+RandomForest,"{'clf__max_depth': None, 'clf__min_samples_leaf': 1, 'clf__n_estimators': 800}",0.5406941989183969
+GradBoost,"{'clf__learning_rate': 0.1, 'clf__max_depth': 3, 'clf__n_estimators': 300}",0.5405069921932121
+SVM_RBF,"{'clf__C': 10.0, 'clf__gamma': 'scale'}",0.5325477284144549
+LogReg,{'clf__C': 0.1},0.5308314621822128
+LinearSVM,{'clf__C': 0.1},0.5306808633968714
