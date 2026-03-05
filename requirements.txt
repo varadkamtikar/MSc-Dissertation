@@ -17,6 +17,3 @@ ipykernel
 
 pyyaml
 tqdm
-
-
-Yogesh was here!
