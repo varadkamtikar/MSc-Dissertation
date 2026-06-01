@@ -1,302 +1,326 @@
-EEG-Reward-Detection
+<div align="center">
 
-Leakage-Free EEG Classification Pipeline for Reward-Related Neural Pattern Detection
+# 🧠 EEG Reward Detection
 
-Overview
+### AI-Based Detection of Reward-Related Neural Patterns from EEG Signals
 
-This repository contains the implementation and experimental pipeline developed for the MSc dissertation:
+*MSc Data Science Dissertation · Technological University Dublin · 2024–25*
 
-“AI-Based Detection of Reward-Related Neural Patterns from EEG Signals in Digital Interaction Contexts.”
+---
 
-The project focuses on designing and evaluating a leakage-free EEG classification pipeline that detects reward-related neural patterns using the DEAP dataset.
-A key objective of this work is to ensure methodological correctness, reproducibility, and realistic performance evaluation, particularly in cross-subject EEG classification scenarios.
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-Open%20Dashboard-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://msc-dissertation-varadkamtikar.streamlit.app)
 
-Unlike many EEG studies that report overly optimistic results, this project emphasises:
+---
 
-strict prevention of data leakage
+![Python](https://img.shields.io/badge/Python-3.9-3776AB?style=flat-square&logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-Deployed-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-ML%20Pipeline-F7931E?style=flat-square&logo=scikitlearn&logoColor=white)
+![License](https://img.shields.io/badge/License-Academic-8B5CF6?style=flat-square)
+![Dataset](https://img.shields.io/badge/Dataset-DEAP%2032%20Subjects-06B6D4?style=flat-square)
 
-evaluation under subject-independent conditions
+</div>
 
-transparent and reproducible experimentation.
+---
 
-Research Objectives
+## 📌 Table of Contents
 
-The main objectives of this dissertation were:
+- [Overview](#-overview)
+- [Live Dashboard](#-live-dashboard)
+- [Key Results](#-key-results)
+- [Pipeline](#-pipeline)
+- [Project Structure](#-project-structure)
+- [Local Setup](#-local-setup)
+- [Methodology](#-methodology)
+- [Dataset](#-dataset)
+- [Tech Stack](#-tech-stack)
+- [Author](#-author)
 
-Design a fully automated end-to-end EEG processing pipeline.
+---
 
-Implement both subject-dependent and subject-independent evaluation frameworks.
+## 🔬 Overview
 
-Prevent data leakage during preprocessing, feature engineering, and model training.
+> *"Can a strictly controlled, leakage-free EEG pipeline produce reliable classification performance under realistic multi-subject conditions?"*
 
-Evaluate multiple classical machine learning models for EEG classification.
+This repository contains the full implementation of the MSc dissertation: **AI-Based Detection of Reward-Related Neural Patterns from EEG Signals**. The project designs and evaluates a **strictly leakage-free EEG classification pipeline** on the DEAP dataset, detecting reward vs. no-reward neural states across 32 subjects.
 
-Provide realistic performance estimates for cross-subject EEG generalisation.
+A central contribution of this work is demonstrating that **evaluation methodology has a greater impact on reported accuracy than model choice**. Many published EEG studies report 80–95% accuracy due to inadvertent data leakage. This pipeline prevents that, yielding an honest **~54% cross-subject accuracy** — modest but **methodologically sound and fully reproducible**.
 
-Dataset
-DEAP Dataset
+### Core Objectives
 
-The experiments were conducted using the DEAP dataset, a widely used dataset in affective computing research.
+| # | Objective |
+|---|-----------|
+| 1 | Design a fully automated end-to-end EEG preprocessing pipeline |
+| 2 | Implement **subject-dependent** (within-subject) and **subject-independent** (cross-subject) evaluation frameworks |
+| 3 | Prevent data leakage — scaler and SMOTE fitted strictly inside training folds |
+| 4 | Compare 6 classical ML classifiers under identical conditions |
+| 5 | Report transparent, reproducible benchmarks using Macro-F1 |
 
-Dataset characteristics:
+---
 
-32 participants
+## 🚀 Live Dashboard
 
-32 EEG channels
+The interactive dissertation dashboard is deployed and publicly accessible:
 
-40 trials per participant
+<div align="center">
 
-Emotional responses elicited through video stimuli
+### 👉 [msc-dissertation-varadkamtikar.streamlit.app](https://msc-dissertation-varadkamtikar.streamlit.app)
 
-Self-assessment ratings for:
+</div>
 
-Valence
+The dashboard includes:
+- **Overview** — KPI cards, research question, and contribution summary
+- **Dataset & Pipeline** — DEAP dataset details, preprocessing stages, feature engineering, and epoch retention
+- **Subject Analytics** — Per-subject model performance, fold-level detail, confusion matrices, and EEG signal plots
+- **Model Comparison** — Cross-subject heatmaps, violin distributions, and plain vs SMOTE comparison
+- **Evaluation & Leakage** — Leakage prevention steps, CV strategy comparison, and performance context
+- **Subject-Independent Results** — Final held-out test results and hyperparameter tuning
+- **Conclusions** — Key findings, contributions, and future directions
 
-Arousal
+---
 
-Dominance
+## 📊 Key Results
 
-Liking
+### Subject-Independent (Cross-Subject) — Final Test Set
 
-More information about the dataset is available here:
+| Model | Test Accuracy | Test Macro-F1 |
+|---|:---:|:---:|
+| **Gradient Boosting** | **0.5357** | **0.5263** |
+| XGBoost | 0.5179 | 0.5101 |
+| Random Forest | 0.5071 | 0.4988 |
+| Linear SVM | 0.5268 | 0.5198 |
+| SVM-RBF | 0.5089 | 0.4912 |
+| Logistic Regression | 0.5214 | 0.5143 |
 
-https://www.eecs.qmul.ac.uk/mmv/datasets/deap/
+> **Chance level = 50%.** Results above chance are real signal under strict no-leakage, cross-subject conditions.
 
-Important Note
+### Subject-Dependent (Within-Subject) — 5-Fold CV Average
 
-The DEAP dataset is not included in this repository due to licensing restrictions.
-Users must obtain the dataset from the original authors.
+| Metric | Plain | SMOTE |
+|---|:---:|:---:|
+| Avg Accuracy | ~0.63 | ~0.61 |
+| Avg Macro-F1 | ~0.62 | ~0.60 |
 
-Repository Structure
-EEG-Reward-Detection
+> Best individual subjects reach Macro-F1 of ~0.72; most challenging subjects drop to ~0.42 — reflecting genuine inter-subject EEG variability.
+
+---
+
+## ⚙️ Pipeline
+
+```
+Raw DEAP EEG (.bdf/.mat)
+        │
+        ▼
+┌─────────────────────────────┐
+│  1. Bandpass Filter 1–40 Hz │
+│  2. Average Re-referencing  │
+│  3. ICA Artefact Removal    │
+│  4. Event Detection         │
+│  5. Epoch Extraction (60 s) │
+└─────────────────────────────┘
+        │
+   ┌────┴────┐
+   │         │
+   ▼         ▼
+Subject     Subject
+Dependent   Independent
+(TSFEL      (Bandpower +
+ spectral)   Hemispheric
+             Asymmetry)
+   │         │
+   ▼         ▼
+Stratified  GroupKFold
+ 5-Fold CV  (by Subject)
+   │         │
+   └────┬────┘
+        │
+   ┌────▼────────────────────┐
+   │  Inside Each Fold Only: │
+   │  • StandardScaler fit   │
+   │  • SMOTE oversample     │
+   └────────────────────────┘
+        │
+        ▼
+  6 ML Classifiers
+  LogReg · LinearSVM · SVM-RBF
+  GradBoost · XGBoost · RF
+        │
+        ▼
+  Accuracy + Macro-F1
+```
+
+<details>
+<summary><b>Leakage Prevention — How It Works</b></summary>
+
+The key principle: **test data never touches any fitting step**.
+
+| Step | Leakage-Safe Implementation |
+|---|---|
+| Feature scaling | `StandardScaler` fitted on `X_train` only, then applied to `X_test` |
+| Oversampling | `SMOTE` applied only to training folds — test fold never receives synthetic samples |
+| Hyperparameter tuning | `GridSearchCV` runs on training data only; best params evaluated once on held-out test |
+| Cross-subject split | `GroupKFold` by subject ID ensures no trial overlap across folds |
+
+</details>
+
+---
+
+## 📁 Project Structure
+
+```
+MSc-Dissertation/
 │
-├── notebooks/
-│   ├── 01_preprocessing.ipynb
-│   ├── 02_feature_extraction_SI.ipynb
-│   ├── 03_training_SI.ipynb
-│   ├── 04_feature_extraction_SD.ipynb
-│   └── 05_training_SD.ipynb
+├── app.py                          # Streamlit dashboard (all 7 pages)
+├── requirements.txt                # Python dependencies
 │
-├── results/
-│   ├── metrics
-│   └── evaluation outputs
+├── code/                           # Jupyter notebooks (run in order)
+│   ├── 01 Raw Clean Comparison New.ipynb
+│   ├── 02 Feature Extraction and Labelling for Subject Independent.ipynb
+│   ├── 03 Subject Independent Training.ipynb
+│   ├── 04 Feature Extraction and Labelling for Subject Dependent.ipynb
+│   └── 05 Subject Dependent Training Model.ipynb
 │
-├── requirements.txt
-├── README.md
-└── .gitignore
-Pipeline Overview
-
-The project implements a five-stage EEG processing pipeline.
-
-1. EEG Preprocessing
-
-Raw EEG recordings are cleaned and standardised before analysis.
-
-Steps include:
-
-Band-pass filtering
-
-Notch filtering
-
-Signal re-referencing
-
-ICA-based artefact removal
-
-Event detection and validation
-
-Epoch extraction
-
-Output:
-
-Cleaned EEG epochs for each trial.
-
-Notebook:
-
-01_preprocessing.ipynb
-2. Feature Extraction – Subject Independent
-
-Feature vectors are constructed from cleaned EEG epochs for cross-subject evaluation.
-
-Features include:
-
-Bandpower features across frequency bands
-
-Hemispheric asymmetry features
-
-A combined dataset is then created across all subjects.
-
-Notebook:
-
-02_feature_extraction_SI.ipynb
-3. Subject-Independent Model Training
-
-Models are trained using GroupKFold cross-validation to ensure subject separation.
-
-Key characteristics:
-
-Training and testing subjects are never mixed
-
-Feature scaling performed inside training folds
-
-SMOTE applied only on training data
-
-Evaluation metrics include accuracy and Macro-F1 score
-
-Notebook:
-
-03_training_SI.ipynb
-4. Feature Extraction – Subject Dependent
-
-A second feature engineering approach is implemented for within-subject analysis.
-
-Features:
-
-TSFEL-based spectral features
-
-Channel-wise feature extraction
-
-Each subject is processed independently.
-
-Notebook:
-
-04_feature_extraction_SD.ipynb
-5. Subject-Dependent Model Training
-
-Models are trained separately for each subject using stratified cross-validation.
-
-This allows comparison between:
-
-within-subject performance
-
-cross-subject generalisation
-
-Notebook:
-
-05_training_SD.ipynb
-Evaluation Strategy
-
-Two evaluation paradigms are used:
-
-Subject-Dependent Evaluation
-
-Training and testing performed on the same subject
-
-Stratified cross-validation ensures class balance
-
-Subject-Independent Evaluation
-
-Training on multiple subjects
-
-Testing on completely unseen subjects
-
-Implemented using GroupKFold cross-validation
-
-This approach provides a more realistic measure of model generalisation.
-
-Results Summary
-
-Key findings from the experiments:
-
-Subject-dependent models achieve higher performance than subject-independent models.
-
-Cross-subject EEG generalisation remains challenging.
-
-Simpler models such as Linear Support Vector Machines perform well under strict evaluation protocols.
-
-Typical subject-independent performance:
-
-Accuracy ≈ 0.54
-
-Macro-F1 ≈ 0.53
-
-These results reflect realistic performance levels when data leakage is prevented.
-
-Key Contributions
-
-This dissertation makes the following contributions:
-
-Development of a fully automated EEG processing pipeline
-
-Implementation of leakage-free evaluation protocols
-
-Comparison of subject-dependent vs subject-independent EEG classification
-
-Transparent reporting of realistic cross-subject performance
-
-Installation
-
-Clone the repository:
-
-git clone https://github.com/<username>/EEG-Reward-Detection.git
-cd EEG-Reward-Detection
-
-Install required dependencies:
-
+├── assets/                         # Pipeline and evaluation diagrams
+│   ├── pipeline.png
+│   ├── evaluation_flow.png
+│   └── feature extraction and labelling.png
+│
+└── data/
+    ├── features/                   # Extracted feature arrays (.npz) per subject
+    │   └── labels/                 # Binary reward labels per subject
+    └── metrics/                    # Evaluation outputs
+        ├── subject_metrics.json    # Per-subject fold-level results
+        ├── final_test_results.csv  # Subject-independent held-out test scores
+        ├── tuning_results_train_only.csv
+        └── table_A1_epochs_retention.csv
+```
+
+> **Note:** Raw DEAP EEG recordings are not included due to licensing. Obtain the dataset from [eecs.qmul.ac.uk/mmv/datasets/deap](https://www.eecs.qmul.ac.uk/mmv/datasets/deap/).
+
+---
+
+## 💻 Local Setup
+
+### 1. Clone
+
+```bash
+git clone https://github.com/varadkamtikar/MSc-Dissertation.git
+cd MSc-Dissertation
+```
+
+### 2. Create a virtual environment
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate        # macOS / Linux
+# .venv\Scripts\activate         # Windows
+```
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
-Running the Pipeline
+```
 
-The notebooks should be executed sequentially:
+### 4. Run the dashboard
 
-01_preprocessing.ipynb
+```bash
+streamlit run app.py
+```
 
-02_feature_extraction_SI.ipynb
+Open [http://localhost:8501](http://localhost:8501) in your browser.
 
-03_training_SI.ipynb
+### 5. Run the notebooks (optional)
 
-04_feature_extraction_SD.ipynb
+Execute notebooks in `code/` **sequentially** (01 → 05). Raw DEAP data must be in place before running notebook 01.
 
-05_training_SD.ipynb
+---
 
-Technologies Used
+## 🧪 Methodology
 
-Python
+<details>
+<summary><b>Subject-Dependent Evaluation</b></summary>
 
-MNE-Python
+- **Split strategy:** Stratified 5-Fold Cross-Validation
+- **Feature set:** TSFEL spectral features — rich time-frequency representation across all 32 channels
+- **Purpose:** Measures how well a model learns an individual's EEG patterns
+- **Expected performance:** Higher (~60–70%) due to within-subject consistency
+- **Key constraint:** Scaler and SMOTE fitted inside each fold
 
-NumPy
+</details>
 
-Pandas
+<details>
+<summary><b>Subject-Independent Evaluation</b></summary>
 
-Scikit-learn
+- **Split strategy:** GroupKFold (grouped by subject ID, k=5)
+- **Feature set:** Bandpower (δ, θ, α, β, γ) + hemispheric asymmetry
+- **Purpose:** Measures true population-level generalisation — entire subjects are held out
+- **Expected performance:** Lower (~54%) — reflects real-world cross-subject challenge
+- **Key constraint:** No subject appears in both training and test within any fold
 
-TSFEL
+</details>
 
-Imbalanced-Learn
+<details>
+<summary><b>Labelling Strategy</b></summary>
 
-Matplotlib
+DEAP self-assessment Valence and Arousal ratings are averaged per trial.
 
-Limitations
+```
+Label = "Reward"     if (Valence + Arousal) / 2 > 5.5
+Label = "No-Reward"  otherwise
+```
 
-Several limitations should be acknowledged:
+Threshold 5.5 was chosen to produce a balanced binary split (640 Reward / 640 No-Reward across 32 subjects × 40 trials).
 
-Experiments rely on a single dataset.
+</details>
 
-Handcrafted features are used instead of deep learning representations.
+---
 
-Cross-subject EEG variability limits classification performance.
+## 📦 Dataset
 
-Future work may explore:
+**DEAP** (Database for Emotion Analysis using Physiological Signals)
 
-connectivity-based EEG features
+| Property | Value |
+|---|---|
+| Participants | 32 |
+| EEG Channels | 32 |
+| Trials / Participant | 40 |
+| Sampling Rate | 256 Hz |
+| Stimulus Duration | 60 s |
+| Total Epochs | 1,280 |
+| Labels Used | Valence + Arousal → Binary (Reward / No-Reward) |
 
-subject-adaptive models
+> Dataset available at: [eecs.qmul.ac.uk/mmv/datasets/deap](https://www.eecs.qmul.ac.uk/mmv/datasets/deap/)
 
-transfer learning approaches.
+---
 
-Author
+## 🛠 Tech Stack
 
-Varadkrishna Kamtikar
-MSc Data Science
-Technological University Dublin
+| Layer | Tools |
+|---|---|
+| EEG Processing | MNE-Python, NumPy |
+| Feature Engineering | TSFEL, NumPy, Pandas |
+| Machine Learning | scikit-learn, XGBoost, imbalanced-learn |
+| Dashboard | Streamlit, Plotly |
+| Deployment | Streamlit Community Cloud |
+| Language | Python 3.9 |
 
-License
+---
 
-This repository is intended for academic and research purposes.
+## 👤 Author
 
-If you want, I can also help you add three things that make a dissertation repo look extremely professional:
+**Varadkrishna Kamtikar**
+MSc Data Science · Technological University Dublin · 2024–25
 
-• a pipeline diagram in the README
-• reproducibility instructions for examiners
-• GitHub badges (Python version, license, etc.)
+---
 
-These significantly improve how your project looks.
+## 📄 License
+
+This repository is shared for academic and research purposes. Please cite appropriately if you build on this work.
+
+---
+
+<div align="center">
+
+**[🚀 Open Live Dashboard](https://msc-dissertation-varadkamtikar.streamlit.app)**
+
+</div>
