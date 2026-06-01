@@ -706,12 +706,12 @@ elif PAGE == "Dataset & Pipeline":
             fig_ep = px.bar(
                 epochs_ret, x="Subject",
                 y=["EventsDetected", "EpochsRetained"],
-                barmode="overlay",
+                barmode="group",
                 color_discrete_map={"EventsDetected": "#334155", "EpochsRetained": "#818cf8"},
                 labels={"value": "Count", "variable": ""},
             )
             _sf(fig_ep, "Events Detected vs Epochs Retained per Subject", h=320)
-            fig_ep.update_layout(bargap=0.18)
+            fig_ep.update_layout(bargap=0.25, bargroupgap=0.05)
             st.plotly_chart(fig_ep, use_container_width=True)
             st.dataframe(epochs_ret, use_container_width=True, hide_index=True)
 
@@ -786,11 +786,12 @@ elif PAGE == "Subject Analytics":
                 ]:
                     closed_vals  = vals + [vals[0]]
                     closed_theta = models_ + [models_[0]]
+                    r_c, g_c, b_c = int(col_[1:3], 16), int(col_[3:5], 16), int(col_[5:7], 16)
                     fig_r.add_trace(go.Scatterpolar(
                         r=closed_vals, theta=closed_theta,
                         fill="toself", name=name,
                         line_color=col_,
-                        fillcolor=col_.replace("#", "rgba(").rstrip(")")[:20] + ",0.12)",
+                        fillcolor=f"rgba({r_c},{g_c},{b_c},0.15)",
                     ))
                 fig_r.update_layout(
                     polar=dict(
@@ -862,8 +863,15 @@ elif PAGE == "Subject Analytics":
     # ── EEG Signals ────────────────────────────────────────────────────────────
     with t3:
         st.markdown(f"**EEG Signal Visualisations — {sel_subject.upper()}**")
-        erp = REPORTS / f"{sel_subject}_erp.png"
-        psd = REPORTS / f"{sel_subject}_psd.png"
+
+        # Resolve ERP/PSD — some subjects (s24–s28) were saved with a _fixed_raw_ prefix
+        def _resolve(primary, fallback):
+            return primary if primary.exists() else fallback
+
+        erp = _resolve(REPORTS / f"{sel_subject}_erp.png",
+                       REPORTS / f"{sel_subject}_fixed_raw_erp.png")
+        psd = _resolve(REPORTS / f"{sel_subject}_psd.png",
+                       REPORTS / f"{sel_subject}_fixed_raw_psd.png")
         cz  = REPORTS / f"{sel_subject}_Cz_time_overlay.png"
         ps1 = REPORTS / f"{sel_subject}_psd_compare_1_40.png"
         ps2 = REPORTS / f"{sel_subject}_psd_compare_47_53.png"
@@ -873,23 +881,29 @@ elif PAGE == "Subject Analytics":
             if erp.exists():
                 st.image(str(erp), caption="Event-Related Potential (ERP)", use_container_width=True)
             else:
-                st.info(f"ERP plot not available for {sel_subject}")
+                st.info(f"ERP plot not available for {sel_subject.upper()}")
         with c2:
             if psd.exists():
                 st.image(str(psd), caption="Power Spectral Density (PSD)", use_container_width=True)
             else:
-                st.info(f"PSD plot not available for {sel_subject}")
+                st.info(f"PSD plot not available for {sel_subject.upper()}")
 
         if cz.exists():
             st.image(str(cz), caption="Cz Electrode Time Overlay", use_container_width=True)
+        else:
+            st.info(f"Cz time overlay not available for {sel_subject.upper()} — only generated for selected subjects.")
 
         pc1, pc2 = st.columns(2)
-        if ps1.exists():
-            with pc1:
+        with pc1:
+            if ps1.exists():
                 st.image(str(ps1), caption="PSD Comparison: 1–40 Hz", use_container_width=True)
-        if ps2.exists():
-            with pc2:
+            else:
+                st.info(f"PSD frequency comparison (1–40 Hz) not available for {sel_subject.upper()}")
+        with pc2:
+            if ps2.exists():
                 st.image(str(ps2), caption="PSD Comparison: 47–53 Hz (noise band)", use_container_width=True)
+            else:
+                st.info(f"PSD noise-band comparison (47–53 Hz) not available for {sel_subject.upper()}")
 
     # ── Data Table ─────────────────────────────────────────────────────────────
     with t4:
@@ -1251,7 +1265,7 @@ elif PAGE == "Subject-Independent Results":
             st.plotly_chart(fig_sc, use_container_width=True)
 
             st.markdown("**Raw Results Table**")
-            disp_t = final_test.copy()
+            disp_t = final_test[["model", "test_acc", "test_macro_f1"]].copy()
             disp_t.columns = ["Model", "Test Accuracy", "Test Macro-F1"]
             disp_t = disp_t.sort_values("Test Macro-F1", ascending=False).reset_index(drop=True)
             st.dataframe(
