@@ -9,13 +9,14 @@
 ---
 
 [![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-Open%20Dashboard-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://msc-dissertation-varadkamtikar.streamlit.app)
+[![Full Dissertation](https://img.shields.io/badge/📄%20Full%20Dissertation-TU%20Dublin%20Library-00325A?style=for-the-badge)](https://library.tudublin.ie/articles/5809171.6793/1.PDF)
 
 ---
 
 ![Python](https://img.shields.io/badge/Python-3.9-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-Deployed-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-ML%20Pipeline-F7931E?style=flat-square&logo=scikitlearn&logoColor=white)
-![License](https://img.shields.io/badge/License-Academic-8B5CF6?style=flat-square)
+![License](https://img.shields.io/badge/Code%20License-MIT-8B5CF6?style=flat-square)
 ![Dataset](https://img.shields.io/badge/Dataset-DEAP%2032%20Subjects-06B6D4?style=flat-square)
 
 </div>
@@ -26,6 +27,7 @@
 
 - [Overview](#-overview)
 - [Live Dashboard](#-live-dashboard)
+- [Full Dissertation](#-full-dissertation)
 - [Key Results](#-key-results)
 - [Pipeline](#-pipeline)
 - [Project Structure](#-project-structure)
@@ -75,6 +77,20 @@ The dashboard includes:
 - **Evaluation & Leakage** — Leakage prevention steps, CV strategy comparison, and performance context
 - **Subject-Independent Results** — Final held-out test results and hyperparameter tuning
 - **Conclusions** — Key findings, contributions, and future directions
+
+---
+
+## 📄 Full Dissertation
+
+The complete dissertation is published in TU Dublin's institutional repository:
+
+<div align="center">
+
+### 👉 [Read the full dissertation (PDF)](https://library.tudublin.ie/articles/5809171.6793/1.PDF)
+
+</div>
+
+> Kamtikar, V. (2025). *AI-Based Detection of Reward-Related Neural Patterns from EEG Signals in Digital Interaction Contexts.* MSc Dissertation, Technological University Dublin. Supervisor: Dr. Bujar Raufi.
 
 ---
 
@@ -315,7 +331,9 @@ MSc Data Science · Technological University Dublin · 2024–25
 
 ## 📄 License
 
-This repository is shared for academic and research purposes. Please cite appropriately if you build on this work.
+- **Code** in this repository (notebooks, `app.py`, pipeline scripts) is released under the [MIT License](LICENSE) — free to use, modify, and build on with attribution.
+- **The dissertation document** is © 2025 Varadkrishna Kamtikar, deposited in [TU Dublin's institutional repository](https://library.tudublin.ie/articles/5809171.6793/1.PDF) under the university's repository terms. Please cite it if you reference this research.
+- The **DEAP dataset** is not redistributed here and remains subject to its own end-user license — see [Dataset](#-dataset).
 
 ---
 
